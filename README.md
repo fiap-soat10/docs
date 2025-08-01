@@ -18,14 +18,35 @@ Como parte da fase 4 de desenvolvimento deste projeto, a arquitetura foi segrega
 
 ## Componentes do sistema
 
-* **Microservice de Identificação**: Opção de identificação via CPF, nome ou não identificação
-* **Microservice de Carrinho**: Recebe a requisição do totem de autoatendimento contendo o combo escolhido pelo cliente, 
-envia uma requisição para criação do pedido e envia um evento de pagamento para o microservice de pagamento
-* **Microservice de Produto**: Adição, edição e remoção de produtos do catálogo
-* **Microservice de Pedidos**: Operacionaliza a esteira do restaurante, com a criação de pedidos,
+* **Microservice de Identificação:**: Opção de identificação via CPF, nome ou não identificação.
+* **Microservice de Carrinho:** Recebe a requisição do totem de autoatendimento contendo o combo escolhido pelo cliente, 
+envia uma requisição para criação do pedido e envia um evento de pagamento para o microservice de pagamento.
+* **Microservice de Produto:** Adição, edição e remoção de produtos do catálogo.
+* **Microservice de Pedidos:** Operacionaliza a esteira do restaurante, com a criação de pedidos,
 transição de seus status e acompanhamento do andamento. Interage com o microservice de produtos.
-* **Microservice de Pagamento**: Processa o pagamento com o sistema externo do Mercado Pago e interage com o pedido para
-atualizar seu status
+* **Microservice de Pagamento:** Processa o pagamento com o sistema externo do Mercado Pago e interage com o pedido para
+atualizar seu status.
+
+### Componentes auxiliares
+
+Segregamos alguns serviços para melhor gerenciamento e buscando também: 
+* **Separação de responsabilidades:** o foco da aplicação é a lógica do negócio, enquanto no projeto de infra o objetivo é 
+provisionar e gerenciar recursos na nuvem.
+* **Ciclos de vida diferentes:** possibilita atualizar a aplicação quantas vezes necessário sem ter que mudar a infra com a 
+mesma frequência. A infra de um projeto é alterada com muito menos frequência.
+* **Segurança e redução de possíveis impactos:** um bug na main do projeto poderia afetar a infraestrutura e derrubar um
+ambiente inteiro. Dessa forma, isolamos os riscos.
+* **Pipelines CI/CD simples e específicas:** os pipelines da aplicação e da infra tem propósitos diferentes. Tentar misturar 
+as lógicas desses pipelines pode torná-la muito complexa, frágil e de difícil manutenção.
+* **Reutilização de código:** uma estrutura de microservices é a que mais necessita de uma infra separada. Sem ela, cada 
+services teria sua própria infra, e muito código seria repetido. Com a infra separada, todos os projetos e equipes podem
+utilizar esse módulo, garantindo padronização e acelerando o provisionamento de novos serviços.
+
+Nossos serviços auxiliares são
+* **infra:** responsável por gerenciar os recursos em nuvem, como VPC, Security Groups, ECR, EKS e tabelas do AWS DynamoDB.
+* **bd:** responsável por gerenciar a infraestrutura do banco de dados SQL
+* **docs:** ponto focal de documentação, onde fica nosso README principal
+
 
 ## Requisitos funcionais
 
@@ -36,12 +57,12 @@ atualizar seu status
 
 ## Requisitos Não Funcionais
 
-* Separação da arquitetura em microservices com base dados própria
-* Necessário implementar pelo menos um exemplo de cada tipo de banco de dados (NoSQL e SQL)
-* Deve conter testes unitários com cobertura mínima de 80%
-* Pelo menos uma operação de cada serviço deve ter testes BDD implementados
-* Branchs main devem ser protegidas, com pull requests validados (qualidade de código)
-* Todos os repositórios precisam ter CI/CD executando corretamente para o deploy
+* Separação da arquitetura em microservices com base dados própria.
+* Necessário implementar pelo menos um exemplo de cada tipo de banco de dados (NoSQL e SQL).
+* Deve conter testes unitários com cobertura mínima de 80%.
+* Pelo menos uma operação de cada serviço deve ter testes BDD implementados.
+* Branchs main devem ser protegidas, com pull requests validados (qualidade de código).
+* Todos os repositórios precisam ter CI/CD executando corretamente para o deploy.
 
 ### Desempenho
 
@@ -76,13 +97,13 @@ Nesses arquivos você também encontrará detalhes sobre a organização de cama
   flexibilidade perfeita para microservices por ser livre de esquema definido. O gerenciamento da AWS também
   elimina a necessidade de provisionamento de servidores e a criação de uma estrutura para segurança e escalonamento.
 * **Docker e Docker Compose:** Empacota a aplicação e seus serviços dependentes em containers que podem ser orquestrados
-* localmente, garantindo um ambiente de desenvolvimento idêntico para todos os desenvolvedores e fornecendo portabilidade
-* (capacidade de uma imagem gerada ser executada em qualquer lugar que tenha suporte Docker).
+localmente, garantindo um ambiente de desenvolvimento idêntico para todos os desenvolvedores e fornecendo portabilidade
+(capacidade de uma imagem gerada ser executada em qualquer lugar que tenha suporte Docker).
 * **Kubernetes:** Orquestra os containers em produção, gerenciando o deploy, a escalabilidade e a resiliência da
-* aplicação.
-* **CI/CD:** Implementa o GitHub Actions, que automatiza as pipelines de CI/CD. Permite entregas mais rápidas e seguras,
-* pois possui etapas de verificação de qualidade (testes unitários, integração e análise de cobertura) antes de ser
-* integrado a base de código principal.
-* **Teste e qualidade:** Utilizamos o LocalStack para instancias containers Docker que simulam a
-* integração com a AWS.
+aplicação.
+* **CI/CD:** Implementa o GitHub Actions, que automatiza os pipelines de CI/CD. Permite entregas mais rápidas e seguras,
+pois possui etapas de verificação de qualidade (testes unitários, integração e análise de cobertura) antes de ser
+integrado a base de código principal.
+* **Teste e qualidade:** Utilizamos o LocalStack para instâncias containers Docker que simulam a
+integração com a AWS.
 
